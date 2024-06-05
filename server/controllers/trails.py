@@ -20,11 +20,11 @@ def get_trail_by_id(trail_id: int):
 
 @trails_controller.route('/<int:trail_id>/trees', methods=['GET'])
 def get_trail_trees_by_id(trail_id: int):
-    trees = []
+    trees = {}
 
     trees_in_trail: list[TreeTrail] = TreeTrail.query.filter_by(trail_id=trail_id).all()
     for tt in trees_in_trail:
-        trees.append(tt.tree)
+        trees[tt.trail_order] = tt.tree
 
     return jsonify(trees), 200
 

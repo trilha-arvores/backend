@@ -1,6 +1,6 @@
 from services import FlaskService, DBService
 from models import Admin
-from controllers.trails import trails_controller
+from controllers import trails_controller
 
 from flask import jsonify, request
 import datetime as dt
