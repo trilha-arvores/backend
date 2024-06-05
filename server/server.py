@@ -1,4 +1,4 @@
-from backend.services import FlaskService, DBService
+from services import FlaskService, DBService
 from models import Admin
 from controllers.trails import trails_controller
 
