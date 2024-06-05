@@ -1,5 +1,6 @@
 from flask import Flask
-from . import DBService
+from services import DBService
+from config import config
 
 
 class FlaskService:
@@ -9,11 +10,11 @@ class FlaskService:
     def setup_app(cls):
         cls.app = Flask(__name__)
 
-        db_user = 'trilhadasarvores_owner'
-        db_password = 'Cu7NfW5acGpi'
-        db_ip = 'ep-cool-wave-a4pwyn0v.us-east-1.aws.neon.tech'
-        db_port = 5432
-        db_database = 'trilhadasarvores'
+        db_user = config['db']['user']
+        db_password = config['db']['password']
+        db_ip = config['db']['ip']
+        db_port = config['db']['port']
+        db_database = config['db']['database']
         db_uri = f'postgresql://{db_user}:{db_password}@{db_ip}:{db_port}/{db_database}'
 
         cls.app.config["SQLALCHEMY_DATABASE_URI"] = db_uri

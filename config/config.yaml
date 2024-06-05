@@ -1,0 +1,6 @@
+db:
+  user: 'trilhadasarvores_owner'
+  password: 'Cu7NfW5acGpi'
+  ip: 'ep-cool-wave-a4pwyn0v.us-east-1.aws.neon.tech'
+  port: 5432
+  database: 'trilhadasarvores'
