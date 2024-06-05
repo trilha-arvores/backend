@@ -34,9 +34,8 @@ def validate_qr_and_position(trail_id: int):
     qr_data = request.json.get('qr_data')
     player_pos = int(request.json.get('player_pos'))
 
-    # TODO Validate
-
     tree_esalq_id = int(qr_data.split('=')[1])
+    # TODO Validate
 
     tt: TreeTrail = TreeTrail.query.filter_by(trail_id=trail_id, trail_order=player_pos).one()
 
@@ -44,5 +43,6 @@ def validate_qr_and_position(trail_id: int):
         return jsonify(tt.tree), 200
 
     else:
-        return {}, 400
+        return {'message': f'Expected esald_id {tt.tree.esalq_id} for {player_pos}-th tree. '
+                           f'Got {tree_esalq_id} instead.'}, 400
 
