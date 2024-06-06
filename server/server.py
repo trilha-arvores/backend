@@ -1,10 +1,11 @@
 from services import FlaskService
-from controllers import trails_controller
+from controllers import trails_controller, admin_controller
 
 FlaskService.setup_app()
 app = FlaskService.app
 
 app.register_blueprint(trails_controller, url_prefix="/trails")
+app.register_blueprint(admin_controller, url_prefix ="/admin")
 
 
 @app.route('/healthcheck', methods=['GET'])
