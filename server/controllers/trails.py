@@ -7,9 +7,8 @@ trails_controller = Blueprint('trails', __name__)
 
 @trails_controller.route('/', methods=['GET'])
 def get_all_trails():
-    trails = Trail.query.all()
+    trails = Trail.query.filter_by(active=True).all()
     return jsonify(trails), 200
-
 
 @trails_controller.route('/<int:trail_id>', methods=['GET'])
 def get_trail_by_id(trail_id: int):
