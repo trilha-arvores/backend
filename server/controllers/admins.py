@@ -19,5 +19,5 @@ def if_admin():
 
 @admin_controller.route('/edit/<int:trail_id>', methods=["POST"])
 def get_trail_by_id(trail_id: int):
-    trail: Trail = Trail.query.filter_by(trail_id=trail_id).all()
+    trail: Trail = Trail.query.filter_by(trail_id=trail_id).one()
     return jsonify(trail), 200
