@@ -1,0 +1,119 @@
+swagger: '2.0'
+info:
+  description: 'Sobre o app foo bar baz'
+  version: 1.0.0
+  title: Documentacao app
+  termsOfService: example.com
+host: localhost:5000
+tags:
+  - name: healthcheck
+  - name: trail
+    description: Related to trails
+  - name: admin
+    description: Admin-only routes
+schemes:
+  - https
+  - http
+paths:
+  /healthcheck:
+    get:
+      tags:
+          - healthcheck
+      summary: Get server status
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: Server is on
+          schema:
+            type: string
+            example: "Hello, World!"
+
+  # Trails
+  /:
+    get:
+      tags:
+        - trail
+      summary: Fetch all trails
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: All active trails
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "Trilha A"
+              n_trees:
+                type: integer
+                example: 3
+              distance:
+                type: number
+                example: 3.14
+              active:
+                type: boolean
+                example: true
+              photo:
+                type: string
+                example: "example.com/image"
+              created_at:
+                type: string
+                example: "101112"
+
+
+  /user/register:
+    post:
+      tags:
+        - admin
+      summary: Create a new user account
+      description: ''
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: name
+          type: string
+          description: "**User's first and last name**"
+          required: true
+        - in: query
+          name: email
+          type: string
+          description: "**User's email address**"
+          required: true
+        - in: query
+          name: password
+          type: string
+          description: "**User's password**"
+          required: true
+      responses:
+        '400':
+          description: "**Bad parameter values. Either missing arguments, too long name, invalid email address or password criteria is not met.**"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Invalid email address"
+
+        '409':
+          description: "**The email address is currently associated to an active account.**"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "User already exists."
+
+        '201':
+          description: "**Sucessfully created user account and sent OTP to the email address.**"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "User created successfully. Verify email."

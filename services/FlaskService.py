@@ -1,6 +1,7 @@
 from flask import Flask
 from services import DBService
 from config import config
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 class FlaskService:
@@ -9,6 +10,17 @@ class FlaskService:
     @classmethod
     def setup_app(cls):
         cls.app = Flask(__name__)
+
+        # Swagger setup
+        swaggerui_blueprint = get_swaggerui_blueprint(
+            '/docs',
+            '/static/swagger.json',
+            config={
+                'app_name': "Trilha das Arvores"
+            },
+        )
+
+        cls.app.register_blueprint(swaggerui_blueprint)
 
         db_user = config['db']['user']
         db_password = config['db']['password']
