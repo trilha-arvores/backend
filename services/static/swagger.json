@@ -44,7 +44,7 @@
         }
       }
     },
-    "/": {
+    "/trails": {
       "get": {
         "tags": [
           "trail"
@@ -93,72 +93,109 @@
         }
       }
     },
-    "/user/register": {
-      "post": {
+    "/admin/trails": {
+      "get": {
         "tags": [
           "admin"
         ],
-        "summary": "Create a new user account",
-        "description": "",
+        "summary": "Get all trails and basic information",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "All trails",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "example": "Tue, 04 Jun 2024 19:51:46 GMT"
+                  },
+                  "distance": {
+                    "type": "number",
+                    "example": 10.5
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 3
+                  },
+                  "n_trees": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Trilha Teste 0"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "example": "example.com/image/123"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/trail/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get a specific trail",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "in": "query",
-            "name": "name",
+            "in": "path",
+            "name": "id",
             "type": "string",
-            "description": "**User's first and last name**",
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "email",
-            "type": "string",
-            "description": "**User's email address**",
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "password",
-            "type": "string",
-            "description": "**User's password**",
+            "description": "Trail ID",
             "required": true
           }
         ],
         "responses": {
-          "201": {
-            "description": "**Sucessfully created user account and sent OTP to the email address.**",
+          "200": {
+            "description": "Trail's information",
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
+                "active": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "created_at": {
                   "type": "string",
-                  "example": "User created successfully. Verify email."
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "**Bad parameter values. Either missing arguments, too long name, invalid email address or password criteria is not met.**",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
+                  "example": "Tue, 04 Jun 2024 19:51:46 GMT"
+                },
+                "distance": {
+                  "type": "number",
+                  "example": 10.5
+                },
+                "id": {
+                  "type": "integer",
+                  "example": 3
+                },
+                "n_trees": {
+                  "type": "integer",
+                  "example": 2
+                },
+                "name": {
                   "type": "string",
-                  "example": "Invalid email address"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "**The email address is currently associated to an active account.**",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
+                  "example": "Trilha Teste 0"
+                },
+                "photo": {
                   "type": "string",
-                  "example": "User already exists."
+                  "example": "example.com/image/123"
                 }
               }
             }

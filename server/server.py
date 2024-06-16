@@ -7,7 +7,7 @@ app = FlaskService.app
 CORS(app)
 
 app.register_blueprint(trails_controller, url_prefix="/trails")
-app.register_blueprint(admin_controller, url_prefix ="/admin")
+app.register_blueprint(admin_controller, url_prefix="/admin")
 
 
 @app.route('/healthcheck', methods=['GET'])

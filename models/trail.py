@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from services import DBService
 
 import datetime as dt
+from decimal import Decimal
 
 
 db = DBService.db
@@ -20,4 +21,10 @@ class Trail(db.Model):
     created_at: dt.datetime = db.Column(db.DateTime)
 
     def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        result = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            if isinstance(value, Decimal):
+                value = float(value)
+            result[c.name] = value
+        return result
