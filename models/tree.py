@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from decimal import Decimal
+
 from services import DBService
 
 import datetime as dt
@@ -24,4 +26,10 @@ class Tree(db.Model):
     qr_code: str = db.Column(db.Text, nullable=True)
 
     def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        result = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+            if isinstance(value, Decimal):
+                value = float(value)
+            result[c.name] = value
+        return result
