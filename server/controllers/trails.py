@@ -26,6 +26,8 @@ def get_trail_trees_by_id(trail_id: int):
     for tt in trees_in_trail:
         trees[tt.trail_order] = tt.tree.to_dict()
 
+        trees[tt.trail_order]["distance"] = tt.distance
+
     return jsonify(trees), 200
 
 
