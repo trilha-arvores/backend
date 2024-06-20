@@ -11,6 +11,7 @@ def get_all_trails():
     trails_dict = [trail.to_dict() for trail in all_trails]
     return jsonify(trails_dict), 200
 
+
 @trails_controller.route('/<int:trail_id>', methods=['GET'])
 def get_trail_by_id(trail_id: int):
     trail: Trail = Trail.query.filter_by(id=trail_id).one()

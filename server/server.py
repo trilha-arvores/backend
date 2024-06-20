@@ -1,4 +1,4 @@
-from services import FlaskService
+from services import FlaskService, AuthenticationService
 from controllers import trails_controller, admin_controller
 from flask_cors import CORS
 
@@ -12,6 +12,13 @@ app.register_blueprint(admin_controller, url_prefix="/admin")
 
 @app.route('/healthcheck', methods=['GET'])
 def healthcheck():
+    # Sanity check
+    x = AuthenticationService.generate_token(0)
+    y = AuthenticationService.verify_token(x)
+
+    if y != x:
+        return {}, 500
+
     return {}, 200
 
 
