@@ -1,7 +1,5 @@
 import jwt
 
-from models import Admin
-
 
 class AuthenticationService:
     SECRET_KEY = "6rgzQkWPu0uR5Dpc"
@@ -20,11 +18,10 @@ class AuthenticationService:
             raise Exception('Authorization Header required.')
 
         admin_id = cls.verify_token(token)
-        user = Admin.query.filter_by(id=admin_id).first()
-        if None in (admin_id, user):
+        if admin_id is None:
             raise Exception('Failed to authenticate user.')
 
-        return admin_id
+        return True
 
     @classmethod
     def verify_token(cls, token):
