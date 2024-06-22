@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from models import Admin, Trail
-from services import AuthenticationService, DBService
+from services import AuthenticationService, DBService, ObjectStorageService
 
 admin_controller = Blueprint('admins', __name__)
 
@@ -56,3 +56,19 @@ def login():
         return {'message': "No user found"}, 400
 
     return AuthenticationService.generate_token(admin.id), 200
+
+
+@admin_controller.route('/upload', methods=['POST'])
+def upload():
+    file = request.files['file']
+
+    ObjectStorageService.upload_file(file)
+
+    return {}, 200
+
+
+@admin_controller.route('/url/<file_name>', methods=['GET'])
+def get_url(file_name):
+    url = ObjectStorageService.get_url(file_name)
+
+    return jsonify(url), 200
