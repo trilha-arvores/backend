@@ -135,4 +135,6 @@ def upload():
 def get_url(file_name):
     url = ObjectStorageService.get_url(file_name)
 
-    return jsonify(url), 200
+    public_url = url.replace('minio:9000', 'localhost:9000')
+
+    return jsonify(public_url), 200
