@@ -103,6 +103,8 @@ def delete_trail(trail_id: int):
 
     trail: Trail = Trail.query.filter_by(id=trail_id).one()
 
+    TreeTrail.query.filter_by(trail_id=trail_id).delete()
+
     DBService.session.delete(trail)
     DBService.session.commit()
 
