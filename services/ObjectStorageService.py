@@ -14,7 +14,7 @@ class ObjectStorageService:
     @classmethod
     def setup(cls):
         minio_client = Minio(
-            "minio:9000",  # TODO Change localhost to minio for Docker
+            "192.168.0.24:9000",  # TODO Change localhost to minio for Docker
             access_key="YEv9LUqnG9Q87TPj7cbI",
             secret_key="62ijOcUlbkIKs20jm0l8TiZUYtHC3ESDkcuOVErZ",
             secure=False
