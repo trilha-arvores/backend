@@ -1,12 +1,10 @@
-from services import FlaskService, ObjectStorageService
+from services import FlaskService
 from controllers import trails_controller, admin_controller
 from flask_cors import CORS
 
 FlaskService.setup_app()
 app = FlaskService.app
 CORS(app)
-
-ObjectStorageService.setup()
 
 
 app.register_blueprint(trails_controller, url_prefix="/trails")

@@ -6,28 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      MINIO_ACCESS_KEY: YEv9LUqnG9Q87TPj7cbI
-      MINIO_SECRET_KEY: 62ijOcUlbkIKs20jm0l8TiZUYtHC3ESDkcuOVErZ
-      MINIO_BROWSER_REDIRECT_URL: localhost:9001
-      MINIO_SERVER_URL: localhost:9001
+      MY_VAR: test
     ports:
       - "5000:5000"
-    depends_on:
-      - minio
     volumes:
       - .:/app
-
-  minio:
-    image: minio/minio:latest
-    environment:
-      MINIO_ACCESS_KEY: YEv9LUqnG9Q87TPj7cbI
-      MINIO_SECRET_KEY: 62ijOcUlbkIKs20jm0l8TiZUYtHC3ESDkcuOVErZ
-    volumes:
-      - minio-data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    command: server --address ":9000" --console-address ":9001" /data
-
-volumes:
-  minio-data:

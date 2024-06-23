@@ -17,7 +17,7 @@ class Trail(db.Model):
     n_trees: int = db.Column(db.Integer, nullable=False)
     distance: float = db.Column(db.Numeric, nullable=False)
     active: bool = db.Column(db.Boolean, nullable=False)
-    photo: str = db.Column(db.Text, nullable=True)
+    image: bytes = db.Column(db.LargeBinary, nullable=True)
     created_at: dt.datetime = db.Column(db.DateTime)
 
     def to_dict(self):
@@ -27,4 +27,7 @@ class Trail(db.Model):
             if isinstance(value, Decimal):
                 value = float(value)
             result[c.name] = value
+
+        del result['image']
+        result['image_url'] = f"http://localhost:5000/admin/image/{result['id']}"  # TODO make URL dynamic
         return result

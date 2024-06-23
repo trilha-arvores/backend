@@ -1,11 +1,15 @@
-from flask import Blueprint, jsonify, request
+import json
+
+from flask import Blueprint, jsonify, request, Response
 import datetime
 import math
 
 from models import Admin, Trail, TreeTrail
-from services import AuthenticationService, DBService, ObjectStorageService
+from services import AuthenticationService, DBService
 
 admin_controller = Blueprint('admins', __name__)
+
+
 def get_haversine_distance(lat1, lon1, lat2, lon2):
     # Converte de graus para radianos
     lat1 = math.radians(lat1)
@@ -28,6 +32,7 @@ def get_haversine_distance(lat1, lon1, lat2, lon2):
     distance = R * c
 
     return distance
+
 
 @admin_controller.route('/trails', methods=['GET'])
 def get_all_trails():
@@ -60,6 +65,7 @@ def get_trails(trail_id: int):
         return {'message': repr(e)}, 401
 
     trail: Trail = Trail.query.filter_by(id=trail_id).one()
+
     aux_trail = trail.to_dict()
     trees = {}
     trees_in_trail: list[TreeTrail] = TreeTrail.query.filter_by(trail_id=aux_trail["id"]).all()
@@ -79,9 +85,11 @@ def create_trail():
     except Exception as e:
         return {'message': repr(e)}, 401
 
-    name = request.json.get("name")
-    photo = request.json.get("photo")
-    tree_list = list(request.json.get("trees"))
+    name = request.form.get("name")
+    tree_list = json.loads(request.form.get("trees"))
+
+    file = request.files['file']
+    image_data = file.read()  # Read the file data
 
     if tree_list is None:
         return "Tree list not provided", 400
@@ -91,7 +99,7 @@ def create_trail():
         n_trees=len(tree_list),
         active=True,
         distance=10,
-        photo=photo,
+        image=image_data,
         created_at=datetime.datetime.now()
     )
     DBService.session.add(trail)
@@ -136,6 +144,7 @@ def update_trail(trail_id: int):
     DBService.session.commit()
     return "Updated", 201
 
+
 @admin_controller.route('/trail/<int:trail_id>', methods=['DELETE'])
 def delete_trail(trail_id: int):
     try:
@@ -166,17 +175,10 @@ def login():
     return AuthenticationService.generate_token(admin.id), 200
 
 
-@admin_controller.route('/upload', methods=['POST'])
-def upload():
-    file = request.files['file']
+@admin_controller.route('/image/<int:trail_id>', methods=['GET'])
+def get_image(trail_id):
+    trail = DBService.session.query(Trail).filter_by(id=trail_id).first()
+    if not trail or not trail.image:
+        return "Image not found", 404
 
-    ObjectStorageService.upload_file(file)
-
-    return {}, 200
-
-
-@admin_controller.route('/url/<file_name>', methods=['GET'])
-def get_url(file_name):
-    url = ObjectStorageService.get_url(file_name)
-
-    return jsonify(url), 200
+    return Response(trail.image, mimetype='image/jpeg')
