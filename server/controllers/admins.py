@@ -1,11 +1,33 @@
 from flask import Blueprint, jsonify, request
 import datetime
+import math
 
 from models import Admin, Trail, TreeTrail
 from services import AuthenticationService, DBService, ObjectStorageService
 
 admin_controller = Blueprint('admins', __name__)
+def get_haversine_distance(lat1, lon1, lat2, lon2):
+    # Converte de graus para radianos
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
+    lat2 = math.radians(lat2)
+    lon2 = math.radians(lon2)
 
+    # Diferenças das coordenadas
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    # Fórmula do haversine
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    # Raio da Terra em km
+    R = 6371.0
+
+    # Distância em km
+    distance = R * c
+
+    return distance
 
 @admin_controller.route('/trails', methods=['GET'])
 def get_all_trails():
@@ -58,33 +80,26 @@ def create_trail():
         return {'message': repr(e)}, 401
 
     name = request.json.get("name")
-    n_trees = request.json.get("n_trees")
-    distance = request.json.get("distance")
     photo = request.json.get("photo")
+    tree_list = list(request.json.get("trees"))
+
+    if tree_list is None:
+        return "Tree list not provided", 400
 
     trail = Trail(
         name=name,
-        n_trees=n_trees,
-        distance=distance,
+        n_trees=len(tree_list),
         active=True,
+        distance=10,
         photo=photo,
         created_at=datetime.datetime.now()
     )
     DBService.session.add(trail)
-    DBService.session.commit()
 
-    just_added: Trail = Trail.query.filter_by(name=name).one()
-    if just_added is None:
-        return "Trail not found", 404
-
-    tree_list = request.json.get("trees")
-    if tree_list is None:
-        return "Tree list not provided", 400
-
-    for index, value in enumerate(tree_list):
+    for index, tree in enumerate(tree_list):
         tree_trail = TreeTrail(
-            tree_id=value,
-            trail_id=just_added.id,
+            tree_id=tree,
+            trail=trail,
             trail_order=index,
             active=True,
         )
@@ -93,6 +108,33 @@ def create_trail():
     DBService.session.commit()
     return "Created", 201
 
+
+@admin_controller.route('/trail/<int:trail_id>', methods=['PATCH'])
+def update_trail(trail_id: int):
+
+    trail: Trail = Trail.query.filter_by(id=trail_id).one()
+    data = request.json.get()
+
+    if 'name' in data:
+        trail.name = data['name']
+    if 'active' in data:
+        trail.active = data['active']
+    if 'photo' in data:
+        trail.photo = data['photo']
+    if "trees" in data:
+        trail.n_trees = len(data["trees"])
+        TreeTrail.query.filter_by(trail_id=trail_id).delete()
+        for index, tree in enumerate(data["trees"]):
+            tree_trail = TreeTrail(
+                tree_id=tree,
+                trail=trail,
+                trail_order=index,
+                active=True,
+            )
+            DBService.session.add(tree_trail)
+
+    DBService.session.commit()
+    return "Updated", 201
 
 @admin_controller.route('/trail/<int:trail_id>', methods=['DELETE'])
 def delete_trail(trail_id: int):
