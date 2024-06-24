@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request, Response
 import datetime
 import math
 
-from models import Admin, Trail, TreeTrail
+from models import Admin, Trail, TreeTrail, Tree
 from services import AuthenticationService, DBService
 
 admin_controller = Blueprint('admins', __name__)
@@ -77,6 +77,20 @@ def get_trails(trail_id: int):
 
     return jsonify(aux_trail), 200
 
+
+@admin_controller.route('/esalqid/<int:esalq_id>', methods=['GET'])
+def get_tree_by_esalq_id(esalq_id: int):
+    try:
+        AuthenticationService.authenticate(request)
+    except Exception as e:
+        return {'message': repr(e)}, 401
+
+    tree: Tree = Tree.query.filter_by(esalq_id=esalq_id).first()
+
+    if tree is None:
+        return "Not found", 404
+
+    return jsonify(tree.to_dict()), 200
 
 @admin_controller.route('/create', methods=["POST"])
 def create_trail():
