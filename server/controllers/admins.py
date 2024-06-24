@@ -125,18 +125,23 @@ def create_trail():
 def update_trail(trail_id: int):
 
     trail: Trail = Trail.query.filter_by(id=trail_id).one()
-    data = request.json.get()
 
-    if 'name' in data:
-        trail.name = data['name']
-    if 'active' in data:
-        trail.active = data['active']
-    if 'photo' in data:
-        trail.photo = data['photo']
-    if "trees" in data:
-        trail.n_trees = len(data["trees"])
+    if name := request.form.get('name'):
+        trail.name = name
+    if active := request.form.get('active'):
+        trail.active = active
+    if thumb_img := request.files.get('thumb_img'):
+        thumb_img_data = thumb_img.read()
+        trail.thumb_img = thumb_img_data
+    if map_img := request.files.get('map_img'):
+        map_img_data = map_img.read()
+        trail.map_img = map_img_data
+    if trees := request.form.get("trees"):
+        trees = json.loads(trees)
+
+        trail.n_trees = len(trees)
         TreeTrail.query.filter_by(trail_id=trail_id).delete()
-        for index, tree in enumerate(data["trees"]):
+        for index, tree in enumerate(trees):
             tree_trail = TreeTrail(
                 tree_id=tree,
                 trail=trail,
