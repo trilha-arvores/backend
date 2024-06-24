@@ -17,7 +17,8 @@ class Trail(db.Model):
     n_trees: int = db.Column(db.Integer, nullable=False)
     distance: float = db.Column(db.Numeric, nullable=False)
     active: bool = db.Column(db.Boolean, nullable=False)
-    image: bytes = db.Column(db.LargeBinary, nullable=True)
+    thumb_img: bytes = db.Column(db.LargeBinary, nullable=True)
+    map_img: bytes = db.Column(db.LargeBinary, nullable=True)
     created_at: dt.datetime = db.Column(db.DateTime)
 
     def to_dict(self):
@@ -28,6 +29,7 @@ class Trail(db.Model):
                 value = float(value)
             result[c.name] = value
 
-        del result['image']
-        result['image_url'] = f"http://localhost:5000/admin/image/{result['id']}"  # TODO make URL dynamic
+        result['thumb_img'] = f"http://localhost:5000/trails/thumb/{result['id']}"
+        result['map_img'] = f"http://localhost:5000/trails/map/{result['id']}"
+
         return result

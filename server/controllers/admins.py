@@ -88,8 +88,11 @@ def create_trail():
     name = request.form.get("name")
     tree_list = json.loads(request.form.get("trees"))
 
-    file = request.files['file']
-    image_data = file.read()  # Read the file data
+    thumb_img = request.files['thumb_img']
+    thumb_img_data = thumb_img.read()
+
+    map_img = request.files['map_img']
+    map_img_data = map_img.read()
 
     if tree_list is None:
         return "Tree list not provided", 400
@@ -99,7 +102,8 @@ def create_trail():
         n_trees=len(tree_list),
         active=True,
         distance=10,
-        image=image_data,
+        thumb_img=thumb_img_data,
+        map_img=map_img_data,
         created_at=datetime.datetime.now()
     )
     DBService.session.add(trail)
@@ -173,12 +177,3 @@ def login():
         return {'message': "No user found"}, 400
 
     return AuthenticationService.generate_token(admin.id), 200
-
-
-@admin_controller.route('/image/<int:trail_id>', methods=['GET'])
-def get_image(trail_id):
-    trail = DBService.session.query(Trail).filter_by(id=trail_id).first()
-    if not trail or not trail.image:
-        return "Image not found", 404
-
-    return Response(trail.image, mimetype='image/jpeg')

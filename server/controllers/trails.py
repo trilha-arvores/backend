@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response
 
 from models import Trail, TreeTrail
+from services import DBService
 
 trails_controller = Blueprint('trails', __name__)
 
@@ -49,3 +50,20 @@ def validate_qr_and_position(trail_id: int):
         return {'message': f'Expected esald_id {tt.tree.esalq_id} for {player_pos}-th tree. '
                            f'Got {tree_esalq_id} instead.'}, 400
 
+
+@trails_controller.route('/thumb/<int:trail_id>', methods=['GET'])
+def get_thumb_image(trail_id):
+    trail = DBService.session.query(Trail).filter_by(id=trail_id).first()
+    if not trail or not trail.thumb_img:
+        return "Image not found", 404
+
+    return Response(trail.thumb_img, mimetype='image/jpeg')
+
+
+@trails_controller.route('/map/<int:trail_id>', methods=['GET'])
+def get_map_image(trail_id):
+    trail = DBService.session.query(Trail).filter_by(id=trail_id).first()
+    if not trail or not trail.map_img:
+        return "Image not found", 404
+
+    return Response(trail.map_img, mimetype='image/jpeg')
