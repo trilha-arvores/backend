@@ -67,6 +67,7 @@ def get_tree_by_esalq_id(esalq_id: int):
 
     return jsonify(tree.to_dict()), 200
 
+
 @admin_controller.route('/create', methods=["POST"])
 def create_trail():
     try:
@@ -89,6 +90,8 @@ def create_trail():
     trees = []
     for tree_id in tree_list:
         tree: Tree = Tree.query.filter_by(id=tree_id).one()
+        if tree.latitude is None or tree.longitude is None:
+            return f"Error: Tree {tree.name} ({tree.id}) does not have latitute and/or longitude", 422
         trees.append(tree)
 
     distance = 0.0
