@@ -21,11 +21,11 @@ def get_all_trails():
     for trail in all_trails:
         aux_trail = trail.to_dict()
         trees = {}
-        trees_in_trail: list[TreeTrail] = TreeTrail.query.filter_by(trail_id=aux_trail["id"]).all()
+        trees_in_trail: list[TreeTrail] = TreeTrail.query.filter_by(trail_id=trail.id).all()
         for tt in trees_in_trail:
             trees[tt.trail_order] = tt.tree.to_dict()
-
             trees[tt.trail_order]["distance"] = float(tt.distance) if tt.distance else None
+
         aux_trail["trees"] = trees
         trails_dict.append(aux_trail)
 
