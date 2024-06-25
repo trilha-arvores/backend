@@ -2,36 +2,11 @@ import json
 
 from flask import Blueprint, jsonify, request, Response
 import datetime
-import math
 
 from models import Admin, Trail, TreeTrail, Tree
-from services import AuthenticationService, DBService
+from services import AuthenticationService, DBService, MapService
 
 admin_controller = Blueprint('admins', __name__)
-
-
-def get_haversine_distance(lat1, lon1, lat2, lon2):
-    # Converte de graus para radianos
-    lat1 = math.radians(lat1)
-    lon1 = math.radians(lon1)
-    lat2 = math.radians(lat2)
-    lon2 = math.radians(lon2)
-
-    # Diferenças das coordenadas
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-
-    # Fórmula do haversine
-    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    # Raio da Terra em km
-    R = 6371.0
-
-    # Distância em km
-    distance = R * c
-
-    return distance
 
 
 @admin_controller.route('/trails', methods=['GET'])
@@ -111,11 +86,21 @@ def create_trail():
     if tree_list is None:
         return "Tree list not provided", 400
 
+    trees = []
+    for tree_id in tree_list:
+        tree: Tree = Tree.query.filter_by(id=tree_id).one()
+        trees.append(tree)
+
+    distance = 0.0
+    for i in range(1, len(tree_list)):
+        distance += MapService.get_haversine_distance(
+            trees[i - 1].latitude, trees[i - 1].longitude, trees[i].latitude, trees[i].longitude)
+
     trail = Trail(
         name=name,
         n_trees=len(tree_list),
         active=True,
-        distance=10,
+        distance=distance,
         thumb_img=thumb_img_data,
         map_img=map_img_data,
         created_at=datetime.datetime.now()
@@ -123,11 +108,16 @@ def create_trail():
     DBService.session.add(trail)
 
     for index, tree in enumerate(tree_list):
+        distance = MapService.get_haversine_distance(
+            trees[index - 1].latitude, trees[index - 1].longitude,
+            trees[index].latitude, trees[index].longitude) if index != 0 else None
+
         tree_trail = TreeTrail(
             tree_id=tree,
             trail=trail,
             trail_order=index,
             active=True,
+            distance=distance
         )
         DBService.session.add(tree_trail)
 
@@ -137,6 +127,10 @@ def create_trail():
 
 @admin_controller.route('/trail/<int:trail_id>', methods=['PATCH'])
 def update_trail(trail_id: int):
+    try:
+        AuthenticationService.authenticate(request)
+    except Exception as e:
+        return {'message': repr(e)}, 401
 
     trail: Trail = Trail.query.filter_by(id=trail_id).one()
 
@@ -153,14 +147,31 @@ def update_trail(trail_id: int):
     if trees := request.form.get("trees"):
         trees = json.loads(trees)
 
+        tree_list = []
+        for tree_id in trees:
+            tree: Tree = Tree.query.filter_by(id=tree_id).one()
+            tree_list.append(tree)
+
+        distance = 0.0
+        for i in range(1, len(trees)):
+            distance += MapService.get_haversine_distance(
+                tree_list[i - 1].latitude, tree_list[i - 1].longitude, tree_list[i].latitude, tree_list[i].longitude)
+
         trail.n_trees = len(trees)
+        trail.distance = distance
+
         TreeTrail.query.filter_by(trail_id=trail_id).delete()
         for index, tree in enumerate(trees):
+            distance = MapService.get_haversine_distance(
+                tree_list[index - 1].latitude, tree_list[index - 1].longitude,
+                tree_list[index].latitude, tree_list[index].longitude) if index != 0 else None
+
             tree_trail = TreeTrail(
                 tree_id=tree,
                 trail=trail,
                 trail_order=index,
                 active=True,
+                distance=distance
             )
             DBService.session.add(tree_trail)
 
