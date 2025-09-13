@@ -29,7 +29,7 @@ class Trail(db.Model):
                 value = float(value)
             result[c.name] = value
 
-        result['thumb_img'] = f"http://localhost:5000/trails/thumb/{result['id']}"
-        result['map_img'] = f"http://localhost:5000/trails/map/{result['id']}"
+        result['thumb_img'] = f"http://200.144.255.186:2281/trails/thumb/{result['id']}"
+        result['map_img'] = f"http://200.144.255.186:2281/trails/map/{result['id']}"
 
         return result
